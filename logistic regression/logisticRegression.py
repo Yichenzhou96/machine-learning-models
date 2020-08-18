@@ -1,5 +1,7 @@
+import numpy as np
+
 class LogisticRegression:
-    def __init__(self, lr = 0.1, num_iter=1000000):
+    def __init__(self, lr = 0.01, num_iter=10000):
         self.lr = lr
         self.num_iter = num_iter
         
