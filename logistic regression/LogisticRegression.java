@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class TableModel {
+public class logisticRegression {
     double learningRate = 0.01;
     int numIter = 1000;
     List<Double> theta;
@@ -12,11 +12,11 @@ public class TableModel {
 
     }
 
-    public TableModel(List<Double> x) {
+    public logisticRegression(List<Double> x) {
         this.theta = x;
     }
 
-    public TableModel(double lr, int num) {
+    public logisticRegression(double lr, int num) {
         this.learningRate = lr;
         this.numIter = num;
     }
