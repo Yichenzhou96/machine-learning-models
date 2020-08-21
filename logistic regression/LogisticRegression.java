@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class logisticRegression {
+public class LogisticRegression {
     double learningRate = 0.01;
     int numIter = 1000;
     List<Double> theta;
@@ -12,11 +12,11 @@ public class logisticRegression {
 
     }
 
-    public logisticRegression(List<Double> x) {
+    public LogisticRegression(List<Double> x) {
         this.theta = x;
     }
 
-    public logisticRegression(double lr, int num) {
+    public LogisticRegression(double lr, int num) {
         this.learningRate = lr;
         this.numIter = num;
     }
@@ -31,7 +31,7 @@ public class logisticRegression {
 
 
     public double logistic(double z) {
-        return 1/(1 + Math.exp(z));
+        return 1/(1 + Math.exp(-z));
     }
 
     public double dotProduct(List<Double> x, List<Double> y) {
