@@ -1,5 +1,7 @@
 import numpy as np
 from sklearn.model_selection import train_test_split
+from collections import Counter
+from sklearn import datasets
 
 
 class TreeNode:
@@ -8,13 +10,17 @@ class TreeNode:
         self.y = y
         self.gini = gini
         self.parent = None
-        self.children = []
+        self.left_child = None
+        self.right_child = None
         self.feature = None
         self.value = None
         self.leaf = self.check_leaf_node()
 
-    def set_child(self, child):
-        self.children.append(child)
+    def set_left_child(self, child):
+        self.left_child = child
+
+    def set_right_child(self, child):
+        self.right_child = child
 
     def set_parent(self, parent):
         self.parent = parent
@@ -29,8 +35,11 @@ class TreeNode:
         else:
             return False
 
-    def get_children(self):
-        return self.children
+    def get_left_child(self):
+        return self.left_child
+
+    def get_right_child(self):
+        return self.right_child
 
 
 class DecisionTree:
@@ -94,7 +103,6 @@ class DecisionTree:
         value_split = 0
         best_x = []
         best_y = []
-        total_gini = []
         for row in node.x:
             for feature in range(len(row)):
                 children_x, children_y = self.split(node.x, node.y, feature, row[feature])
@@ -108,12 +116,19 @@ class DecisionTree:
 
         # print('minimum gini is: {}'.format(min_gini))
         node.set_split(feature_split, value_split)
-        for x, y in zip(best_x, best_y):
-            g = self.calculate_gini(y)
-            child_node = TreeNode(x, y, g)
-            node.set_child(child_node)
+        left_gini = self.calculate_gini(best_y[0])
+        left_child_node = TreeNode(best_x[0], best_y[0], left_gini)
+        node.set_left_child(left_child_node)
 
-        return node.get_children()
+        right_gini = self.calculate_gini(best_y[1])
+        right_child_node = TreeNode(best_x[1], best_y[1], right_gini)
+        node.set_right_child(right_child_node)
+        # for x, y in zip(best_x, best_y):
+        #     g = self.calculate_gini(y)
+        #     child_node = TreeNode(x, y, g)
+        #     node.set_child(child_node)
+
+        return [left_child_node, right_child_node]
 
     @staticmethod
     def check_leaf_node(node):
@@ -135,30 +150,40 @@ class DecisionTree:
                 for child in children:
                     queue.append(child)
 
+    def predict(self, test):
+        predictions = []
+        for x in test:
+            queue = [self.root]
+            while queue:
+                head = queue.pop(0)
+                if head.leaf:
+                    occurence_count = Counter(head.y)
+                    prediction = occurence_count.most_common(1)[0][0]
+                    predictions.append(prediction)
+                else:
+                    if x[head.feature] < head.value:
+                        left_child = head.get_left_child()
+                        queue.append(left_child)
+                    else:
+                        right_child = head.get_right_child()
+                        queue.append(right_child)
 
-x = np.random.normal(size=(5,))
-y = np.outer(x, x)
-z = np.random.multivariate_normal(np.zeros(5)-2, y, size=10)
+        return predictions
 
-x1 = np.random.normal(size=(5,))
-y1 = np.outer(x1, x1)
-z1 = np.random.multivariate_normal(np.zeros(5)+2, y1, size=10)
 
-X_train = np.r_[z, z1]
-
-Y_train = np.r_[[1 for x in range(10)], [-1 for x in range(10)]]
-
-X_train, X_test, y_train, y_test = train_test_split(X_train, Y_train, test_size=0.33, random_state=42)
+iris = datasets.load_iris()
+X = iris.data  # we only take the first two features.
+y = iris.target
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
 model = DecisionTree()
 model.fit(X_train, y_train)
 
-queue = [model.root]
-while queue:
-    head = queue.pop()
-    print(head.y)
-    for child in head.get_children():
-        queue.append(child)
+predictions = model.predict(X_test)
+
+print('prediction score: {}'.format(sum(predictions == y_test)/len(y_test)))
+
+
 
 
 
