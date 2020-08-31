@@ -1,7 +1,5 @@
 import numpy as np
-from sklearn.model_selection import train_test_split
 from collections import Counter
-from sklearn import datasets
 
 
 class TreeNode:
@@ -24,6 +22,9 @@ class TreeNode:
 
     def set_parent(self, parent):
         self.parent = parent
+
+    def get_parent(self):
+        return self.parent
 
     def set_split(self, feature, value):
         self.feature = feature
@@ -52,6 +53,8 @@ class DecisionTree:
 
     def calculate_gini(self, target):
         size = len(target)
+        if size == 0:
+            return 0
         p = [len(list(filter(lambda x: x == k, target))) / size for k in self.classes]
         gini = 1 - sum(list(map(lambda x: x**2, p)))
         return gini
@@ -171,17 +174,7 @@ class DecisionTree:
         return predictions
 
 
-iris = datasets.load_iris()
-X = iris.data  # we only take the first two features.
-y = iris.target
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
 
-model = DecisionTree()
-model.fit(X_train, y_train)
-
-predictions = model.predict(X_test)
-
-print('prediction score: {}'.format(sum(predictions == y_test)/len(y_test)))
 
 
 
