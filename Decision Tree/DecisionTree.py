@@ -1,5 +1,7 @@
 import numpy as np
+from sklearn.model_selection import train_test_split
 from collections import Counter
+from sklearn import datasets
 
 
 class TreeNode:
@@ -13,6 +15,9 @@ class TreeNode:
         self.feature = None
         self.value = None
         self.leaf = self.check_leaf_node()
+        if self.leaf:
+            occurence_count = Counter(self.y)
+            self.target = occurence_count.most_common(1)[0][0]
 
     def set_left_child(self, child):
         self.left_child = child
@@ -22,9 +27,6 @@ class TreeNode:
 
     def set_parent(self, parent):
         self.parent = parent
-
-    def get_parent(self):
-        return self.parent
 
     def set_split(self, feature, value):
         self.feature = feature
@@ -53,8 +55,6 @@ class DecisionTree:
 
     def calculate_gini(self, target):
         size = len(target)
-        if size == 0:
-            return 0
         p = [len(list(filter(lambda x: x == k, target))) / size for k in self.classes]
         gini = 1 - sum(list(map(lambda x: x**2, p)))
         return gini
@@ -160,9 +160,7 @@ class DecisionTree:
             while queue:
                 head = queue.pop(0)
                 if head.leaf:
-                    occurence_count = Counter(head.y)
-                    prediction = occurence_count.most_common(1)[0][0]
-                    predictions.append(prediction)
+                    predictions.append(head.target)
                 else:
                     if x[head.feature] < head.value:
                         left_child = head.get_left_child()
@@ -173,8 +171,34 @@ class DecisionTree:
 
         return predictions
 
+    def print_tree(self):
+        current_level = [self.root]
+
+        while current_level:
+            print(' '.join("< " + str(node.value) if node.value is not None else "class: " + str(node.target) for node in current_level))
+            next_level = []
+            for node in current_level:
+                if node.get_left_child() is not None:
+                    next_level.append(node.get_left_child())
+
+                if node.get_right_child() is not None:
+                    next_level.append(node.get_right_child())
+
+            current_level = next_level
 
 
+iris = datasets.load_iris()
+X = iris.data
+y = iris.target
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+
+model = DecisionTree()
+model.fit(X_train, y_train)
+
+predictions = model.predict(X_test)
+
+print('prediction score: {}'.format(sum(predictions == y_test)/len(y_test)))
+model.print_tree()
 
 
 
