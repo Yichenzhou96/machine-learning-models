@@ -54,19 +54,26 @@ class MaximumDecisionTree(DecisionTree):
         self.root = TreeNode(x, y, root_gini)
         depth = 0
         current_level = [self.root]
+        flag = False
         while current_level:
+            if depth > self.max_depth:
+                flag = True
+
             next_level = []
             for node in current_level:
                 children = self.get_split(node)
 
                 if children is not None:
                     for child in children:
-                        next_level.append(child)
+                        if flag:
+                            child.set_leaf()
+                        else:
+                            next_level.append(child)
 
             current_level = next_level
             depth += 1
-            if depth > self.max_depth:
-                print(depth)
+
+            if flag:
                 break
 
 
