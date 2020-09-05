@@ -1,7 +1,5 @@
 import numpy as np
-from sklearn.model_selection import train_test_split
 from collections import Counter
-from sklearn import datasets
 
 
 class TreeNode:
@@ -43,6 +41,11 @@ class TreeNode:
 
     def get_right_child(self):
         return self.right_child
+
+    def set_leaf(self):
+        self.leaf = True
+        occurence_count = Counter(self.y)
+        self.target = occurence_count.most_common(1)[0][0]
 
 
 class DecisionTree:
@@ -117,7 +120,6 @@ class DecisionTree:
                     best_x = children_x
                     best_y = children_y
 
-        # print('minimum gini is: {}'.format(min_gini))
         node.set_split(feature_split, value_split)
         left_gini = self.calculate_gini(best_y[0])
         left_child_node = TreeNode(best_x[0], best_y[0], left_gini)
@@ -126,10 +128,6 @@ class DecisionTree:
         right_gini = self.calculate_gini(best_y[1])
         right_child_node = TreeNode(best_x[1], best_y[1], right_gini)
         node.set_right_child(right_child_node)
-        # for x, y in zip(best_x, best_y):
-        #     g = self.calculate_gini(y)
-        #     child_node = TreeNode(x, y, g)
-        #     node.set_child(child_node)
 
         return [left_child_node, right_child_node]
 
@@ -186,19 +184,6 @@ class DecisionTree:
 
             current_level = next_level
 
-
-iris = datasets.load_iris()
-X = iris.data
-y = iris.target
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
-
-model = DecisionTree()
-model.fit(X_train, y_train)
-
-predictions = model.predict(X_test)
-
-print('prediction score: {}'.format(sum(predictions == y_test)/len(y_test)))
-model.print_tree()
 
 
 
