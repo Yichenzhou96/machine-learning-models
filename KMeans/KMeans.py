@@ -2,10 +2,11 @@ import random
 import numpy as np
 
 
-class kmeans:
-    def __init__(self, k=None):
+class KMeans:
+    def __init__(self, k=None, n_init=10):
         self.k = k
         self.means = None
+        self.n_init = n_init
 
     def initialize_means_randomly(self, x):
         points = random.sample(range(len(x)), k=self.k)
@@ -36,7 +37,6 @@ class kmeans:
         while True:
             current_labels = self.update_means(x)
             res = self.calculate_distance(current_labels-prev)
-            print(res)
             if res < 10e-5:
                 break
             prev = np.copy(current_labels)
@@ -48,18 +48,22 @@ class kmeans:
             predictions.append(np.argmin(distance))
         return predictions
 
+    def score(self, x, y):
+        predictions = self.predict(x)
+        point = sum(predictions == y) / len(y)
+        return point
 
-from sklearn.model_selection import train_test_split
-from sklearn import datasets
+    def multiple_fit(self, x, y):
+        best_means = None
+        best_point = 0
+        for n in range(self.n_init):
+            self.fit(x)
+            point = self.score(x, y)
+            print(point)
+            if point > best_point:
+                best_point = point
+                best_means = self.means
 
-iris = datasets.load_iris()
-X = iris.data
-y = iris.target
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
-
-model = kmeans(3)
-model.fit(X_train)
-predictions = model.predict(X_test)
-print('prediction score: {}'.format(sum(predictions == y_test)/len(y_test)))
+        self.means = best_means
 
 
