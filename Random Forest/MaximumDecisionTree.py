@@ -1,9 +1,6 @@
-import sys
-import os
 import random
-sys.path.append(os.path.dirname(os.getcwd())+'\Decision Tree')
-
-from DecisionTree import TreeNode, DecisionTree
+from decisionTree.DecisionTree import DecisionTree
+from decisionTree.TreeNode import TreeNode
 
 
 class MaximumDecisionTree(DecisionTree):

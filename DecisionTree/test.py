@@ -1,4 +1,4 @@
-from DecisionTree import *
+from decisionTree.DecisionTree import DecisionTree
 from sklearn.model_selection import train_test_split
 from sklearn import datasets
 
