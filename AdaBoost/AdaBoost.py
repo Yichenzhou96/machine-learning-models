@@ -1,9 +1,6 @@
 import numpy as np
-import sys
-import os
+from decisionTree.DecisionTree import DecisionTree
 
-
-from DecisionTree import DecisionTree
 
 class AdaBoost:
     def __init__(self, n=50, eta=1):
