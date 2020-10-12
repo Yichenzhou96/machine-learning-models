@@ -1,13 +1,14 @@
 import numpy as np
+from random import choices
 from decisionTree.DecisionTree import DecisionTree
 
 
 class AdaBoost:
-    def __init__(self, n=50, eta=1):
+    def __init__(self, n=2, eta=1):
         self.n_predictor = n
         self.eta = eta
         self.alphas = [1 for _ in range(self.n_predictor)]
-        self.predictors = [None for _ in range(self.n_predictor)]
+        self.predictors = []
 
     def compute_predictor_weight(self, y_hat, y, w):
         weight_error = 0
@@ -18,9 +19,15 @@ class AdaBoost:
 
             total_weight += w_i
 
-        weight_error_rate = weight_error / total_weight if total_weight != 0 else 0
-        predictor_weight = self.eta * np.log((1-weight_error_rate) / weight_error_rate)
-        return predictor_weight
+        if total_weight == 0:
+            weight_error_rate = 0
+        else:
+            weight_error_rate = weight_error / total_weight
+
+        if weight_error_rate == 0:
+            return 0
+        else:
+            return self.eta * np.log((1-weight_error_rate) / weight_error_rate)
 
     def update_instance_weight(self, y_hat, y, w, alpha):
         size = len(w)
@@ -32,18 +39,32 @@ class AdaBoost:
 
         return w
 
+    def create_new_training_dataset(self, X, w, y):
+        size = X.shape
+        X_new = np.zeros(size)
+        y_new = np.zeros(len(y))
+        population = [n for n in range(len(X))]
+        for i in range(size[0]):
+            # print(choices(X, w)[0])
+            index = choices(population, w)[0]
+            X_new[i] = X[index]
+            y_new[i] = y[index]
+
+        return X_new, y_new
+
     def fit(self, X, y):
         size = len(X)
-        weights = [1/size for _ in range(size)]
+        weights = np.zeros((size,)) + 1/size
+
         for i in range(self.n_predictor):
-            X_ = np.dot(X, weights)
+            X, y = self.create_new_training_dataset(X, weights, y)
             predictor = DecisionTree()
-            predictor.fit(X_, y)
+            predictor.fit(X, y)
             y_hat = predictor.predict(X)
             predictor_weight = self.compute_predictor_weight(y_hat, y, weights)
             weights = self.update_instance_weight(y_hat, y, weights, predictor_weight)
             self.alphas[i] = predictor_weight
-            self.predictors[i] = predictor
+            self.predictors.append(predictor)
 
     def predict(self, test):
         pre = []
