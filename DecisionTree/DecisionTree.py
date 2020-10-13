@@ -113,6 +113,7 @@ class DecisionTree:
                 head = queue.pop(0)
                 if head.leaf:
                     predictions.append(head.target)
+                    break
                 else:
                     if x[head.feature] < head.value:
                         left_child = head.get_left_child()
