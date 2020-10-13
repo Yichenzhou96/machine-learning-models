@@ -4,7 +4,7 @@ from decisionTree.DecisionTree import DecisionTree
 
 
 class AdaBoost:
-    def __init__(self, n=2, eta=1):
+    def __init__(self, n=10, eta=1):
         self.n_predictor = n
         self.eta = eta
         self.alphas = [1 for _ in range(self.n_predictor)]
@@ -67,18 +67,20 @@ class AdaBoost:
             self.predictors.append(predictor)
 
     def predict(self, test):
-        pre = []
-        for instance in test:
-            y_ = [0 for _ in range(self.n_predictor)]
+        pre = np.zeros((self.n_predictor, len(test)))
+        for i in range(self.n_predictor):
+            pre[i] = self.predictors[i].predict(test)
+
+        predictions = []
+        for i in range(len(test)):
             classes = {}
             for j in range(self.n_predictor):
-                y_[j] = self.predictors[j].predict(instance)
-                if y_[j] not in classes:
-                    classes[y_[j]] = self.alphas[j]
+                if pre[:, i][j] not in classes:
+                    classes[pre[:, i][j]] = self.alphas[j]
                 else:
-                    classes[y_[j]] += self.alphas[j]
+                    classes[pre[:, i][j]] += self.alphas[j]
 
-            pre.append(max(classes, key=classes.get))
+            predictions.append(max(classes, key=classes.get))
 
-        return pre
+        return predictions
 
