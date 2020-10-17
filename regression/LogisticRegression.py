@@ -20,7 +20,7 @@ class LogisticRegression:
     
     def fit(self, X, y):
         new_X = self.prepare_X(X)
-        self.theta = np.zeros((X.shape[1]))
+        self.theta = np.zeros((new_X.shape[1]))
         
         for i in range(self.num_iter):
             z = np.dot(new_X, self.theta)
